@@ -77,13 +77,6 @@ summary.origin <- function(object, x = object, ...){
     return(invisible(x))
 }
 
-# add generic for plot
-#' generic method for plots
-#' @param x object
-#' @param y object
-#' @param ... further arguments
-#' @export
-plot <- function(x, y, ...) UseMethod("plot")
 #' \code{plot} generates an illustration of an origin object using the variable to be optimized.
 #'
 #' @param y character specifying the variable being plotted at the y-axis; options are \code{'id'} for node identifier (default), \code{'mdist'} for mean distance (only available for \code{\link{origin_edm}}) or \code{'wvar'} for weighted variance (only available for \code{\link{origin_edm}})
