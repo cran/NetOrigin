@@ -2,10 +2,10 @@
 % Please edit documentation in R/origin_helper.r
 \name{origin-methods}
 \alias{origin-methods}
-\alias{performance.origin}
-\alias{plot.origin}
 \alias{print.origin}
 \alias{summary.origin}
+\alias{plot.origin}
+\alias{performance.origin}
 \title{methods for origin estimation objects of class \code{origin}}
 \usage{
 \method{print}{origin}(x, ...)
@@ -42,12 +42,6 @@
 }
 \description{
 \code{print} produces an output for objects of class \code{origin}.
-
-\code{summary} produces an object summary for objects of class \code{origin}.
-
-\code{plot} generates an illustration of an origin object using the variable to be optimized.
-
-\code{performance} evaluates an object of class \code{origin} and returns a \code{data.frame} identifying correct estimation, and computing rank and distance of correct detection.
 }
 \examples{
 data(ptnGoe)
@@ -64,4 +58,3 @@ performance(res, start=1, graph=ptnGoe)
 \seealso{
 \code{\link{origin}} \code{\link{plot_performance}}
 }
-
