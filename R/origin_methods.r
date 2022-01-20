@@ -40,11 +40,12 @@
 #' performance(om, start=1, graph=ptnGoe)
 #' 
 #' @rdname origin
-#' @import Hmisc igraph
+#' @import igraph
+# @importFrom Hmisc
 #' @export
 origin_edm <- function(events, distance, silent=TRUE){    
     ### error handling
-    if(!is.vector(events)) events <- as.vector(events)
+#    if(!is.vector(events)) events <- as.vector(events)
     # NA handling in events
     nas <- which(is.na(events))
     if(length(nas)>0){
@@ -110,13 +111,13 @@ origin_edm <- function(events, distance, silent=TRUE){
 #' @references \itemize{
 #'   \item Gatz, D. F., and Smith, L. (1995). The standard error of a weighted mean concentration-I. Bootstrapping vs other methods. Atmospheric Environment, 29(11), 1185-1193. <DOI: 10.1016/1352-2310(94)00210-C>
 #'   \item Gatz, D. F., and Smith, L. (1995). The standard error of a weighted mean concentration-II. Estimating confidence intervals. Atmospheric Environment, 29(11), 1195-1200. <DOI: 10.1016/1352-2310(94)00209-4>
-#'   \item \url{https://r.789695.n4.nabble.com/Problem-with-Weighted-Variance-in-Hmisc-td826437.html}
+#   \item \url{https://r.789695.n4.nabble.com/Problem-with-Weighted-Variance-in-Hmisc-td826437.html}
 #' }
-#'
+#' 
 #' @export
 var_wtd_mean_cochran <- function(x,w){
   n = length(w)
-  xWbar = wtd.mean(x,w, na.rm=TRUE)
+  xWbar = Hmisc::wtd.mean(x,w, na.rm=TRUE)
   wbar = mean(w, na.rm=TRUE)
   out = n/((n-1)*sum(w)^2)*(sum((w*x-wbar*xWbar)^2) -
         2*xWbar*sum((w-wbar)*(w*x-wbar*xWbar))+xWbar^2*sum((w-wbar)^2))
@@ -158,7 +159,7 @@ var_wtd_mean_cochran <- function(x,w){
 origin_backtracking <- function(events, graph, start_with_event_node = TRUE, silent = TRUE){
     
    # input errors
-    if(!is.vector(events)) events <- as.vector(events)
+#    if(!is.vector(events)) events <- as.vector(events)
 #    if(is.null(names(events))) warning('\nWarning: events and node names cannot be matched - we assume that events and graph nodes have the same order')
 
    # match events and graph names
@@ -253,7 +254,7 @@ origin_centrality <- function(events, graph, silent=TRUE){
 
     # input errors
     if(is.null(names(events))) stop('\nError: events and node names cannot be matched')
-    if(!is.vector(events)) events <- as.vector(events)
+#    if(!is.vector(events)) events <- as.vector(events)
     idm <- match(names(events), V(graph)$name)
     # remove events that not have nodes in the network
     nas <- which(is.na(idm))
@@ -352,12 +353,14 @@ TimeMin <- function(num.cases, thres = NA){
 #' thres.vec <- rep(10, nnodes)
 #' # flat/non-informative prior
 #' prior <- rep(1, nnodes) 
+#' \donttest{
 #' result2.df <- origin(events = cases.node.day, type = "bayesian",
 #'                      thres.vec = thres.vec,
 #'                      obs.vec = obs.vec,
 #'                      mu.mat=mu.lambda.list$mu.mat, lambda.list = mu.lambda.list$lambda.list, 
 #'                      poss.candidate.vec=mu.lambda.list$poss.candidate.vec,
 #'                      prior=prior, use.prior=TRUE)
+#' }
 #' 
 #' @rdname origin
 #' @author Jun Li
