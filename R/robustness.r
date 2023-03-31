@@ -13,7 +13,6 @@ robustness <- function(x, ...) UseMethod("robustness")
 #' @param prop numeric, value between zero and one, proportion of events to be sampled
 #' @param n numeric, number of resamplings
 #' @param ... parameters to be passed to origin methods \code{\link{origin_edm}}, \code{\link{origin_backtracking}} or \code{\link{origin_centrality}}
-#' 
 #' @return \code{data.frame} with columns
 #'   \itemize{
 #'         \item \code{est} origin estimated when all data is evaluated
@@ -28,7 +27,7 @@ robustness <- function(x, ...) UseMethod("robustness")
 #' dat <- data.frame(node  = sample(size = 500, make.names(V(ptnAth)$name), replace = TRUE),
 #'                   time  = sample(size = 500, 1:10, replace = TRUE),
 #'                   delay = rexp(500, rate=10))
-#' # compute effective distance
+#' # compute effective distance 
 #' net <- igraph::as_adjacency_matrix(ptnAth, sparse=FALSE)
 #' p <- net/rowSums(net)
 #' eff <- eff_dist(p)
@@ -52,7 +51,7 @@ robustness <- function(x, type=c('edm', 'backtracking', 'centrality'), prop, n=1
     # run source detection on all data
     datA <- aggr_data(x,cumsum=TRUE)#, from='06:00')
     res <- apply(datA, FUN=origin, type=type, MARGIN=1, ...)
-    est <- unlist(lapply(res, function(y) rownames(y[[2]])[y$est]))
+    est <- unlist(lapply(res, function(y) rownames(y[[2]])[y$est$id]))
     nt <- length(est) # number of time points
 
     # initialize return vector counting the number of estimate replica 
@@ -71,7 +70,7 @@ robustness <- function(x, type=c('edm', 'backtracking', 'centrality'), prop, n=1
         }
         # run source detection
         res.sam <- apply(dat.sam, FUN=origin, type=type, MARGIN=1, ...)
-        est.sam <- unlist(lapply(res.sam, function(x) rownames(x[[2]])[x$est]))
+        est.sam <- unlist(lapply(res.sam, function(x) rownames(x[[2]])[x$est$id]))
         # update number of estimate replica
         rob <- rob + as.numeric( est == est.sam )
     }
@@ -95,10 +94,9 @@ robustness <- function(x, type=c('edm', 'backtracking', 'centrality'), prop, n=1
 #' @param add logical specifying whether this should be added to another robustness plot
 #' @param ... further arguments passed to the default \code{print} method
 #'
-#' @return No return value
-#'
 #' @seealso \code{\link{robustness}}
 #' @rdname robustness-methods
+# #' @export
 print.robustness <- function(x, ...){
     ret <- data.frame(time = attr(x,'row.names'), estimate = x$est, robustness = x$rob)
     print(ret, ...)
@@ -109,6 +107,7 @@ print.robustness <- function(x, ...){
 #' @param object object of class \code{\link{origin}}, origin estimation object from function \code{origin_xxx}; passed to \code{x}
 #' 
 #' @rdname robustness-methods
+# #' @export
 summary.robustness <- function(object, x = object, ...){
     ret <- data.frame(time = attr(x,'row.names'), estimate = x$est, robustness = x$rob)
     summary(ret, ...)

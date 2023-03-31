@@ -26,9 +26,6 @@
 
 \item{add}{logical specifying whether this should be added to another robustness plot}
 }
-\value{
-No return value
-}
 \description{
 \code{print} produces an output for objects of class \code{robustness}
 }

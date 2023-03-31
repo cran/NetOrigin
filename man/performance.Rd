@@ -2,7 +2,7 @@
 % Please edit documentation in R/origin_helper.r
 \name{performance}
 \alias{performance}
-\title{generic method for performance evaluation for objects of class \code{origin}}
+\title{generic method for performance evaluation}
 \usage{
 performance(x, ...)
 }
@@ -11,11 +11,8 @@ performance(x, ...)
 
 \item{...}{further arguments}
 }
-\value{
-none, there are no applicable methods available for other objects
-}
 \description{
-generic method for performance evaluation for objects of class \code{origin}
+generic method for performance evaluation
 }
 \seealso{
 \code{\link{origin-methods}} \code{\link{plot_performance}}

@@ -1,4 +1,5 @@
 #' @include origin_helper.r
+globalVariables(c("id", "bcount"))
 
 ######################### origin detection methods #############################
 ################################################################################
@@ -40,12 +41,11 @@
 #' performance(om, start=1, graph=ptnGoe)
 #' 
 #' @rdname origin
-#' @import igraph
-# @importFrom Hmisc
+#' @import igraph 
 #' @export
 origin_edm <- function(events, distance, silent=TRUE){    
     ### error handling
-#    if(!is.vector(events)) events <- as.vector(events)
+    if(!is.vector(events)) events <- as.vector(events)
     # NA handling in events
     nas <- which(is.na(events))
     if(length(nas)>0){
@@ -59,18 +59,19 @@ origin_edm <- function(events, distance, silent=TRUE){
     }
     # check events/distance matching 
     if(is.null(names(events))){
-        if(!silent) message('Note: events and distance cannot be matched, ensure they are in the same order')
+      if(!silent) message('Note: events and distance cannot be matched, ensure they are in the same order')
+      names(events) <- rownames(distance)
     }else{
-        order.events <- match(names(events),colnames(distance))
-        # remove nodes with events that are not in the network
-        nas <- which(is.na(order.events))
-        if(length(nas) > 0){
-          if(!silent) message(cat('Note: data events for nodes given that are not in the network:\n',names(events)[nas]))
-          events <- events[-nas]
-          order.events <- order.events[-nas]
-	}
-        # sort distance + remove unneeded information
-        distance <- distance[order.events, order.events]
+      order.events <- match(names(events),colnames(distance))
+      # remove nodes with events that are not in the network
+      nas <- which(is.na(order.events))
+      if(length(nas) > 0){
+        if(!silent) message(cat('Note: data events for nodes given that are not in the network:\n',names(events)[nas]))
+        events <- events[-nas]
+        order.events <- order.events[-nas]
+	    }
+      # sort distance + remove unneeded information
+      distance <- distance[order.events, order.events]
     }   
 
     ### convert input
@@ -83,18 +84,17 @@ origin_edm <- function(events, distance, silent=TRUE){
     # weighted mean and variance
     wmean <- (distance %*% dat) / sum(dat)
     wvar <- apply(distance, MARGIN=2, FUN=var_wtd_mean_cochran, w=dat)
-    
-    # source detection 
-    k0.hat <- which.min(wmean)
-    if(length(k0.hat)==0) k0.hat <- NA
 
-    # add mdist - mean distance from a node to all other nodes
-#    mdist <- colMeans(distance)
+    # return argument; add mdist - mean distance from a node to all other nodes
+    aux = data.frame(name = names(events), id=1:length(events), events=dat, 
+                     wmean = wmean, wvar = wvar, mdist = colMeans(distance))
+    
+    # source estimate
+    k0.hat <- aux %>% dplyr::slice_min(wmean) %>% dplyr::slice_min(wvar) #which.min(wmean)
+    if(nrow(k0.hat)==0) k0.hat <- NA
 
     ### return
-    ret <- list(est = k0.hat, 
-                aux = data.frame(id=1:length(events), events=dat, wmean = wmean, wvar = wvar, mdist = colMeans(distance), row.names=names(events)),
-                type = 'edm')
+    ret <- list(est = k0.hat, aux = aux, type = 'edm')
     class(ret) <- 'origin'
     return(ret)
 }
@@ -113,7 +113,7 @@ origin_edm <- function(events, distance, silent=TRUE){
 #'   \item Gatz, D. F., and Smith, L. (1995). The standard error of a weighted mean concentration-II. Estimating confidence intervals. Atmospheric Environment, 29(11), 1195-1200. <DOI: 10.1016/1352-2310(94)00209-4>
 #   \item \url{https://r.789695.n4.nabble.com/Problem-with-Weighted-Variance-in-Hmisc-td826437.html}
 #' }
-#' 
+#'
 #' @export
 var_wtd_mean_cochran <- function(x,w){
   n = length(w)
@@ -159,34 +159,35 @@ var_wtd_mean_cochran <- function(x,w){
 origin_backtracking <- function(events, graph, start_with_event_node = TRUE, silent = TRUE){
     
    # input errors
-#    if(!is.vector(events)) events <- as.vector(events)
+   if(!is.vector(events)) events <- as.vector(events)
 #    if(is.null(names(events))) warning('\nWarning: events and node names cannot be matched - we assume that events and graph nodes have the same order')
 
    # match events and graph names
-    idm <- match(names(events), V(graph)$name) #<FIXME> correct order?
+   idm <- match(names(events), V(graph)$name) #<FIXME> correct order?
 
    # remove events that not have nodes in the network
-    nas <- which(is.na(idm))
-    if(length(nas) > 0){
-       if(!silent) message(cat('\nNote: data events for nodes given that are not in the network are removed:\n',names(events)[nas]))
-       events <- events[-nas]
-       idm <- idm[-nas]
-    }
+   nas <- which(is.na(idm))
+   if(length(nas) > 0){
+      if(!silent) message(cat('\nNote: data events for nodes given that are not in the network are removed:\n',names(events)[nas]))
+      events <- events[-nas]
+      idm <- idm[-nas]
+   }
 
    # add events to graph
-    if(length(idm)){
-       V(graph)$events <- events[idm]
-    }else{ 
-       V(graph)$events <- events 
-       if(!silent) warning('\nWarning: events and node names cannot be matched - we assume that events and graph nodes have the same order')
-    }
+   if(length(idm)>0){
+      V(graph)$events <- events[idm]
+   }else{ 
+      V(graph)$events <- events 
+      names(events) <- V(graph)$name
+      if(!silent) warning('\nWarning: events and node names cannot be matched - we assume that events and graph nodes have the same order')
+   }
 
    # initialize result object
-    result <- integer(length(events))
+   result <- integer(length(events))
 
-    K <- vcount(graph)
+   K <- vcount(graph)
 
-    for(k in 1:K){
+   for(k in 1:K){
         current_node <- k
         # NA handling
         if(is.na(V(graph)[current_node]$events)){ next }
@@ -216,9 +217,11 @@ origin_backtracking <- function(events, graph, start_with_event_node = TRUE, sil
     }
 
     # return argument
-    aux <- data.frame(id=1:length(events), events = t(events), bcount=result)
-    colnames(aux) <- c('id', 'events','bcount')
-    ret <- list(est = which.max(result), aux = aux, type='backtracking')
+    aux <- data.frame(name = names(events), id=1:length(events), events = as.numeric(events), bcount=result) #name = names(events),
+    k0.hat <- aux %>% dplyr::slice_max(bcount) %>% dplyr::slice_max(events)#which.max(result)
+    
+    # colnames(aux) <- c('id', 'events','bcount')
+    ret <- list(est = k0.hat, aux = aux, type='backtracking')
     class(ret) <- 'origin'
     return(ret)
 }
@@ -248,13 +251,13 @@ origin_backtracking <- function(events, graph, start_with_event_node = TRUE, sil
 #' performance(oc, start=1, graph=ptnGoe)
 #' 
 #' @rdname origin
-#' @import igraph
+# @import igraph dplyr
 #' @export
 origin_centrality <- function(events, graph, silent=TRUE){
 
     # input errors
     if(is.null(names(events))) stop('\nError: events and node names cannot be matched')
-#    if(!is.vector(events)) events <- as.vector(events)
+    # if(!is.vector(events)) events <- as.vector(events)
     idm <- match(names(events), V(graph)$name)
     # remove events that not have nodes in the network
     nas <- which(is.na(idm))
@@ -265,45 +268,39 @@ origin_centrality <- function(events, graph, silent=TRUE){
     }
 
     # prepare auxiliary information of return argument
-    aux <- data.frame(id=1:length(events), events=t(events), cent=NA)
+    aux <- data.frame(name = names(events), id=1:length(events), events=as.numeric(events))
 
     # add event info to network graph
-    sub <- subset(events, select=events>0) #
-    idv <- match(names(sub), V(graph)$name) #<FIXME>
+    idv <- aux %>% dplyr::filter(events>0) %>% dplyr::select(id)
 
     # no delays generated
-    if(length(idv)==0){
-       k0.hat <- NA
+    if(nrow(idv)==0){
+       k0.hat <- NULL
     }else{ # more than two nodes are infected
     # trivial solution
-    if(length(idv)==1){
+    if(nrow(idv)==1){
        k0.hat <- idv
     }else{ # for two-node networks betweenness cannot be computed
-    if(length(idv)==2){
-       k0.hat <- which.max(events)
+    if(nrow(idv)==2){
+       k0.hat <- aux %>% dplyr::slice_max(events) #%>% dplyr::select(id)
     }else{ # more than two nodes are infected
-#       if(length(sub) < 5){ # minimal spreading pattern
-#         if(!silent) message(cat('\nNote: events for less than four network nodes, so that no origin detection can be performed\n'))
-#	 aux <- data.frame(events=t(events), cent=NA, id=1:length(events))
-#	 ret <- list(est = NA, aux = aux, type = 'centrality')
-#         class(ret) <- 'origin'
-#         return(ret)
-#    }}
-    
+
       # induced subgraph
-      gsub <- induced.subgraph(graph, idv)
+      gsub <- igraph::induced_subgraph(graph, vids=idv$id)
 
       # compute centrality
-      cent <- betweenness(gsub)/degree(gsub)
+      cent <- igraph::betweenness(gsub)/igraph::degree(gsub) 
+      cent_dt <- as.data.frame(cent) %>% tibble::rownames_to_column(var="name")
+      
+      # update return argument
+      aux <- dplyr::left_join(aux, cent_dt, by = "name")
+      
       # estimate source
-      k0.hat <- match(names(which.max(cent)), names(events))
-
-      # return argument
-#      aux <- data.frame(id=1:length(events), events=t(events), cent=NA)
-      aux$cent[match(names(cent),names(events))] <- cent
+      # k0.hat <- match(names(which.max(cent)), names(events))
+      k0.hat <- aux %>% dplyr::slice_max(cent) #%>% dplyr::select(id)
     }}}
     # finalize return argument
-    colnames(aux) <- c('id', 'events','cent')
+    # colnames(aux) <- c('id', 'events','cent')
     ret <- list(est = k0.hat, aux = aux, type='centrality')
     class(ret) <- 'origin'
     return(ret)
@@ -353,14 +350,12 @@ TimeMin <- function(num.cases, thres = NA){
 #' thres.vec <- rep(10, nnodes)
 #' # flat/non-informative prior
 #' prior <- rep(1, nnodes) 
-#' \donttest{
 #' result2.df <- origin(events = cases.node.day, type = "bayesian",
 #'                      thres.vec = thres.vec,
 #'                      obs.vec = obs.vec,
 #'                      mu.mat=mu.lambda.list$mu.mat, lambda.list = mu.lambda.list$lambda.list, 
 #'                      poss.candidate.vec=mu.lambda.list$poss.candidate.vec,
 #'                      prior=prior, use.prior=TRUE)
-#' }
 #' 
 #' @rdname origin
 #' @author Jun Li
@@ -430,16 +425,6 @@ origin_multiple <- function(events, ...) UseMethod("origin_multiple")
 #'
 #' @references Zang, W., Zhang, P., Zhou, C. and Guo, L. (2014) Discovering Multiple Diffusion Source Nodes in Social Networks. Procedia Computer Science, 29, 443-452. <DOI: 10.1016/j.procs.2014.05.040>
 #'
-#' @examples
-#' data(ptnAth)
-#' # backtracking
-#' origin_multiple(events=delayAth[10,-c(1:2)], type='backtracking', graph=ptnAth, no=2)
-#' # edm
-#' athnet <- igraph::as_adjacency_matrix(ptnAth, sparse=FALSE)
-#' p <- athnet/rowSums(athnet)
-#' eff <- eff_dist(p)
-#' origin_multiple(events=delayAth[10,-c(1:2)], type='edm', graph=ptnAth, no=2, distance=eff)
-#' 
 #' @import igraph
 #' @export
 origin_multiple <- function(events, type=c('edm', 'backtracking', 'centrality'), graph, no=2, distance, fast=TRUE, ...){
@@ -449,36 +434,35 @@ origin_multiple <- function(events, type=c('edm', 'backtracking', 'centrality'),
     V(graph)$station <- 1:K
    
     # define subgraph
-    gsub <- induced.subgraph(graph, which(V(graph)$delay>0))
+    gsub <- induced_subgraph(graph, which(V(graph)$delay>0))
 
     # define communities 
+    options(warn=2)
     com <- if(fast) fastgreedy.community(gsub) else leading.eigenvector.community(gsub)
     comC <- cutat(com, no=no)
 
     # run source detection for each community
     res <- list()
     for(i in 1:no){
-        if(sum(comC==i)<2){
-	  res[i] <- unlist(V(gcom)$station)
-	  next
-	}
-        # subset graph and distance
-        gcom <- induced.subgraph(gsub, which(comC==i))
-        # apply source detection
-        if(type == 'edm'){
-          distC <- distance[unlist(V(gcom)$station),unlist(V(gcom)$station)]
-	  res[[i]] <- origin_edm(events = unlist(V(gcom)$delay), 
-                                  distance = distC, ...)
+      if(sum(comC==i)<2){
+	       res[i] <- unlist(V(gcom)$station)
+	       next
+	    }
+      # subset graph and distance
+      gcom <- induced.subgraph(gsub, which(comC==i))
+      
+      # apply source detection
+      if(type == 'edm'){
+        distC <- distance[unlist(V(gcom)$station),unlist(V(gcom)$station)]
+        res[[i]] <- origin_edm(events = unlist(V(gcom)$delay), distance = distC, ...)
 #        res[i] <- unlist(V(gcom)$station)[fo.con(unlist(V(gcom)$delay), dist=distC)]
-        }
-        if(type == 'backtracking'){
-	  res[[i]] <- origin_backtracking(events = unlist(V(gcom)$delay), 
-                                 graph = gcom, ...) 
-	}
-        if(type == 'centrality'){
-	  res[[i]] <- origin_centrality(events = unlist(V(gcom)$delay), 
-                                 graph = gcom, ...) 
-        }
+      }
+      if(type == 'backtracking'){
+        res[[i]] <- origin_backtracking(events = unlist(V(gcom)$delay), graph = gcom, ...) 
+      }
+      if(type == 'centrality'){
+        res[[i]] <- origin_centrality(events = unlist(V(gcom)$delay), graph = gcom, ...) 
+      }
     }
     return(res)
 }
