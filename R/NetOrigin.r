@@ -16,6 +16,6 @@
 #' @docType package
 #' @name NetOrigin
 #' @aliases NetOrigin-package
-NULL
+"_PACKAGE"
 
 

@@ -1,6 +1,6 @@
 #' analyze public transportation network characteristics
 #' 
-#' @param g \code{\link{igraph}} object, network graph representing the public transportation network, vertices represent stations, which are linked by an edge if there is a direct transfer between them
+#' @param g \code{igraph} object, network graph representing the public transportation network, vertices represent stations, which are linked by an edge if there is a direct transfer between them
 #' @return \code{'data.frame':} 1 obs. of 7 variables: 
 #'   \itemize{
 #'      \item \code{vcount} number of nodes, 
@@ -51,11 +51,11 @@ analyze_ptn <- function(g){
 
 #' A plot method for public transportation networks (PTNs).
 #' 
-#' @param g \code{\link{igraph}} object, network graph representing the public transportation network, vetrices represent stations, which are linked by an edge if there is a direct transfer between them
+#' @param g \code{igraph} object, network graph representing the public transportation network, vetrices represent stations, which are linked by an edge if there is a direct transfer between them
 #' @param color.coding numeric vector with length equal to the number of network nodes
 #' @param color.scheme character vector of length 5 indicating the \code{vertex.color}, default is \code{rev(sequential_hcl(5))}
 #' @param legend logical indicating whether legend for color-coding should be added or not.
-#' @param ... further arguments to be passed to \code{\link{plot.igraph}}
+#' @param ... further arguments to be passed to \code{\link[igraph]{plot.igraph}}
 #' 
 #' @return No return value
 #'

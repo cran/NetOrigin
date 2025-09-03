@@ -7,7 +7,7 @@
 analyze_ptn(g)
 }
 \arguments{
-\item{g}{\code{\link{igraph}} object, network graph representing the public transportation network, vertices represent stations, which are linked by an edge if there is a direct transfer between them}
+\item{g}{\code{igraph} object, network graph representing the public transportation network, vertices represent stations, which are linked by an edge if there is a direct transfer between them}
 }
 \value{
 \code{'data.frame':} 1 obs. of 7 variables: 

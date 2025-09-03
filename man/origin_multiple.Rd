@@ -25,7 +25,7 @@ origin_multiple(
 
 \item{distance}{numeric matrix specifying the distance matrix}
 
-\item{fast}{logical specifying community partitioning algorithm, default is \code{'TRUE'} that uses \code{\link{fastgreedy.community}}, \code{'FALSE'} refers to \code{\link{leading.eigenvector.community}}}
+\item{fast}{logical specifying community partitioning algorithm, default is \code{'TRUE'} that uses \code{\link[igraph]{fastgreedy.community}}, \code{'FALSE'} refers to \code{\link[igraph]{leading.eigenvector.community}}}
 
 \item{...}{parameters to be passed to origin methods \code{\link{origin_edm}}, \code{\link{origin_backtracking}} or \code{\link{origin_centrality}}}
 }

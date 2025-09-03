@@ -148,7 +148,7 @@ performance <- function(x, ...) UseMethod("performance")
 
 #' \code{performance} evaluates an object of class \code{origin} and returns a \code{data.frame} identifying correct estimation, and computing rank and distance of correct detection.
 #' 
-#' @param graph \code{\link{igraph}} object specifying the underlying network graph with attribute 'length' on edges for calculation of distance to the correct origin
+#' @param graph \code{igraph} object specifying the underlying network graph with attribute 'length' on edges for calculation of distance to the correct origin
 #' @param ... further arguments to be passed to default \code{plot} function
 #'
 #' @return \code{performance.origin} returns a \code{data.frame} with variables
@@ -157,8 +157,8 @@ performance <- function(x, ...) UseMethod("performance")
 #'     \item \code{est} the estimated node of origin, 
 #'     \item \code{hitt} logical indicating whether origin estimation is correct or not, 
 #'     \item \code{rank} rank of correct detection, 
-#'     \item \code{spj} number of segments from estimated origin to true origin (requires an \code{\link{igraph}} object), 
-#'     \item \code{dist} distance along the shortest path from estimated origin to true origin (\code{\link{igraph}} edge attribute \code{length})
+#'     \item \code{spj} number of segments from estimated origin to true origin (requires an \code{igraph} object), 
+#'     \item \code{dist} distance along the shortest path from estimated origin to true origin (\code{igraph} edge attribute \code{length})
 #'   }
 #'
 #' @examples

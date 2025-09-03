@@ -13,7 +13,7 @@ plot_ptn(
 )
 }
 \arguments{
-\item{g}{\code{\link{igraph}} object, network graph representing the public transportation network, vetrices represent stations, which are linked by an edge if there is a direct transfer between them}
+\item{g}{\code{igraph} object, network graph representing the public transportation network, vetrices represent stations, which are linked by an edge if there is a direct transfer between them}
 
 \item{color.coding}{numeric vector with length equal to the number of network nodes}
 
@@ -21,7 +21,7 @@ plot_ptn(
 
 \item{legend}{logical indicating whether legend for color-coding should be added or not.}
 
-\item{...}{further arguments to be passed to \code{\link{plot.igraph}}}
+\item{...}{further arguments to be passed to \code{\link[igraph]{plot.igraph}}}
 }
 \value{
 No return value

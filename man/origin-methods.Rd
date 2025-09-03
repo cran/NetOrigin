@@ -27,7 +27,7 @@
 
 \item{start}{numeric, giving the node of the true origin}
 
-\item{graph}{\code{\link{igraph}} object specifying the underlying network graph with attribute 'length' on edges for calculation of distance to the correct origin}
+\item{graph}{\code{igraph} object specifying the underlying network graph with attribute 'length' on edges for calculation of distance to the correct origin}
 }
 \value{
 \code{performance.origin} returns a \code{data.frame} with variables
@@ -36,8 +36,8 @@
     \item \code{est} the estimated node of origin, 
     \item \code{hitt} logical indicating whether origin estimation is correct or not, 
     \item \code{rank} rank of correct detection, 
-    \item \code{spj} number of segments from estimated origin to true origin (requires an \code{\link{igraph}} object), 
-    \item \code{dist} distance along the shortest path from estimated origin to true origin (\code{\link{igraph}} edge attribute \code{length})
+    \item \code{spj} number of segments from estimated origin to true origin (requires an \code{igraph} object), 
+    \item \code{dist} distance along the shortest path from estimated origin to true origin (\code{igraph} edge attribute \code{length})
   }
 }
 \description{

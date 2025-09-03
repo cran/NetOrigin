@@ -19,6 +19,14 @@ For more details on the methodological background, we refer to the corresponding
   \item Comin, C. H. and da Fontoura Costa, L. (2011) Identifying the starting point of a spreading process in complex networks. Physical Review E, 84. <DOI: 10.1103/PhysRevE.84.056105>
 }
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://netorigin.manitz.org/}
+  \item Report bugs at \url{https://github.com/jmanitz/NetOrigin/issues}
+}
+
+}
 \author{
 Juliane Manitz with contributions by Jonas Harbering
 }

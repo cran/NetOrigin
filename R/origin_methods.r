@@ -414,7 +414,7 @@ origin_multiple <- function(events, ...) UseMethod("origin_multiple")
 #' 
 #' @param events numeric vector of event counts at specific time point
 #' @param type character specifying the method, \code{'edm'}, \code{'backtracking'} and \code{'centrality'} are available.
-#' @param fast logical specifying community partitioning algorithm, default is \code{'TRUE'} that uses \code{\link{fastgreedy.community}}, \code{'FALSE'} refers to \code{\link{leading.eigenvector.community}} 
+#' @param fast logical specifying community partitioning algorithm, default is \code{'TRUE'} that uses \code{\link[igraph]{fastgreedy.community}}, \code{'FALSE'} refers to \code{\link[igraph]{leading.eigenvector.community}} 
 #' @param graph igraph object specifying the underlying network graph
 #' @param no numeric specifying the number of supposed origins
 #' @param distance numeric matrix specifying the distance matrix
